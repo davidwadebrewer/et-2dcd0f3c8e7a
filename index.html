@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ember & Thorn">
+<meta name="theme-color" content="#0d0b09">
+<link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-180.png">
+<title>Ember &amp; Thorn</title>
+<style>html,body{margin:0;height:100%;background:#0d0b09;color:#e6c98a;font:16px Georgia,serif}
+#m{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}</style>
+</head><body><div id="m">Loading Ember &amp; Thorn…</div>
+<script>
+(async function(){
+  var m=document.getElementById('m');
+  function fail(t){m.textContent=t;}
+  function idbPut(k){return new Promise(function(res){try{var o=indexedDB.open('et-pages',1);o.onupgradeneeded=function(){o.result.createObjectStore('kv')};
+    o.onsuccess=function(){var t=o.result.transaction('kv','readwrite');t.objectStore('kv').put(k,'key');t.oncomplete=function(){res(true)};t.onerror=function(){res(false)}};o.onerror=function(){res(false)}}catch(e){res(false)}});}
+  try{
+    var k=location.hash.slice(1); if(!k){try{k=localStorage.getItem('etk')||''}catch(e){}}
+    if(!k) return fail('This is a private link. Open it from the full address you were sent.');
+    var b=k.replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='=';
+    var raw=Uint8Array.from(atob(b),function(c){return c.charCodeAt(0)});
+    var key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);
+    var r=await fetch('m.bin',{cache:'no-cache'}); if(!r.ok) throw new Error('download '+r.status);
+    var buf=new Uint8Array(await r.arrayBuffer());
+    try{ await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.slice(0,12),additionalData:new TextEncoder().encode('manifest')},key,buf.slice(12)); }
+    catch(e){ return fail('This is a private link, and this one is incomplete. Open it from the full address you were sent.'); }
+    try{localStorage.setItem('etk',k);}catch(e){}
+    if(!('serviceWorker' in navigator)) return fail('This browser can\u2019t open the game here. Try a normal (not private) Safari or Chrome window.');
+    await idbPut(k);
+    var reg=await navigator.serviceWorker.register('sw.js',{scope:'./'});
+    try{reg.update()}catch(e){}
+    var rdy=await navigator.serviceWorker.ready;
+    if(rdy.active) rdy.active.postMessage({k:k});
+    location.replace('g/index.html#'+k);
+  }catch(e){ fail('Could not open the game ('+(e&&e.name||e)+'). Check the link is complete, or try again.'); }
+})();
+</script></body></html>
