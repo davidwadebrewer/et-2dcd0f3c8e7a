@@ -1,5 +1,5 @@
-// Ember & Thorn private build a4cf3607d4: decrypts game files on demand. The key never leaves this device.
-const VER='a4cf3607d4', CN='et-pages-'+VER, BASE=new URL('./',self.location).href, G=BASE+'g/';
+// Ember & Thorn private build eed3b58a62: decrypts game files on demand. The key never leaves this device.
+const VER='eed3b58a62', CN='et-pages-'+VER, BASE=new URL('./',self.location).href, G=BASE+'g/';
 let KEY=null, MAN=null;
 function idbGet(){return new Promise(res=>{try{const o=indexedDB.open('et-pages',1);o.onupgradeneeded=()=>o.result.createObjectStore('kv');
   o.onsuccess=()=>{try{const q=o.result.transaction('kv').objectStore('kv').get('key');q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}};o.onerror=()=>res(null)}catch(e){res(null)}});}
